@@ -9,8 +9,6 @@ exports.createRefund = async (req, res) => {
     if (!paymentId || !amount) {
       return res.status(400).json({ error: 'paymentId and amount required' });
     }
-
-    // 1️⃣ Validate payment
     const paymentRes = await pool.query(
       'SELECT amount, status FROM payments WHERE id = $1',
       [paymentId]
@@ -23,8 +21,6 @@ exports.createRefund = async (req, res) => {
     if (paymentRes.rows[0].status !== 'success') {
       return res.status(400).json({ error: 'Refund allowed only for successful payments' });
     }
-
-    // 2️⃣ Validate refund amount
     const refundSum = await pool.query(
       'SELECT COALESCE(SUM(amount), 0) AS total FROM refunds WHERE payment_id = $1',
       [paymentId]
@@ -36,8 +32,6 @@ exports.createRefund = async (req, res) => {
     if (alreadyRefunded + amount > paymentAmount) {
       return res.status(400).json({ error: 'Refund amount exceeds payment amount' });
     }
-
-    // 3️⃣ Create refund
     const refundId = uuidv4();
 
     await pool.query(
@@ -45,8 +39,6 @@ exports.createRefund = async (req, res) => {
        VALUES ($1, $2, $3, 'pending')`,
       [refundId, paymentId, amount]
     );
-
-    // 4️⃣ Enqueue refund job
     await refundQueue.add({ refundId });
 
     return res.status(201).json({
