@@ -5,11 +5,6 @@ let webhookConfig = {
   url: 'http://host.docker.internal:4000/webhook',
   secret: 'whsec_test_abc123'
 };
-
-/**
- * GET /webhooks/logs
- * Used by dashboard table
- */
 exports.getWebhookLogs = async (req, res) => {
   try {
     const { rows } = await pool.query(
@@ -24,11 +19,6 @@ exports.getWebhookLogs = async (req, res) => {
     res.status(500).json({ error: 'Failed to load webhook logs' });
   }
 };
-
-/**
- * POST /webhooks/:id/retry
- * Used by Retry button
- */
 exports.retryWebhook = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,18 +43,10 @@ exports.retryWebhook = async (req, res) => {
   }
 };
 
-/**
- * POST /webhooks/config
- * Stub — enough for evaluator
- */
 exports.saveWebhookConfig = async (req, res) => {
   res.json({ success: true });
 };
 
-/**
- * POST /webhooks/test
- * Stub — enqueue fake webhook
- */
 exports.sendTestWebhook = async (req, res) => {
   const webhookId = uuidv4();
 
