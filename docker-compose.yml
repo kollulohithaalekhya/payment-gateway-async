@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -10,6 +10,9 @@ services:
       POSTGRES_DB: payment_gateway
     ports:
       - "5432:5432"
+    volumes:
+      - ./db/migrations:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U gateway_user"]
       interval: 10s
@@ -59,6 +62,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
   dashboard:
     build: ./dashboard
     container_name: gateway_dashboard
@@ -73,3 +77,5 @@ services:
     ports:
       - "3001:3001"
 
+volumes:
+  pgdata:
